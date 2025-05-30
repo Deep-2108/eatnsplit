@@ -33,7 +33,7 @@ function handleAddFriend(friend){
     setshowFriend(false);
 }
 function handleSelection(friend){
-  setSelectedFriend(friend);
+  setSelectedFriend((curr)=>curr?.id===friend.id? null : friend);
 }
   return(
      <div className='app'>
@@ -56,7 +56,7 @@ function FriendList({friends,onSelection,selectedFriend}){
   )
 }
 function Friend({friend,onSelection,selectedFriend}){
-  const isSelected=selectedFriend.id===friend.id;
+  const isSelected=selectedFriend?.id===friend.id;
   return (
     <li className={isSelected? "selected" : ""}>
       <img src={friend.image} alt={friend.name}></img>
@@ -76,7 +76,7 @@ function Friend({friend,onSelection,selectedFriend}){
           <p >You and {friend.name} are even</p>
         )
       }
-      <Button className='button' onClick={()=>onSelection(friend)}>select</Button>
+      <Button className='button' onClick={()=>onSelection(friend)}>{isSelected?"close":"select"}</Button>
     </li>
   )
 }
@@ -114,20 +114,24 @@ function FormAddFriend({onAddFriend}){
 }
 
 function FormSplitBill({selectedFriend}){
+  const [Bill,setBill]=useState("");
+  const [paidByUser,setPaidByUser]=useState("");
+  const paidByFriend=Number(Bill-paidByUser);
+  const [whoIsPaying,setWhoIsPaying]=useState("user");
   return (
     <form className='form-split-bill'>
       <h2>Split a bill with {selectedFriend.name}</h2>
 
       <label>💸 Bill value</label>
-      <input type='text'/>
+      <input type='text' value={Bill} onChange={(e)=>setBill((Number(e.target.value)))} />
 
       <label>🤴 Your expenses</label>
-      <input type='text'/>
+      <input type='text' value={paidByUser} onChange={(e)=>setPaidByUser(Number(e.target.value)>Bill? paidByUser:Number(e.target.value))}/>
 
       <label>👩‍🚀 {selectedFriend.name}'s expenses</label>
-      <input type='text'/>
+      <input type='text' disabled value={paidByFriend}/>
       <label>💵 who's paying the bill</label>
-      <select>
+      <select value={whoIsPaying} onChange={(e)=>setWhoIsPaying(e.target.value)}>
         <option value="user">You</option>
         <option value="friend">{selectedFriend.name}</option>
       </select>
